@@ -14,7 +14,8 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { confirmDialog } from 'primereact/confirmdialog';
+import { Dropdown } from 'primereact/dropdown';
+import { InputNumber } from 'primereact/inputnumber';
 
 const Productos = () => {
 
@@ -25,8 +26,8 @@ const Productos = () => {
     const [nombre, setNombre] = useState('');
     const [existencia, setExistencia] = useState('');
     const [precio, setPrecio] = useState('');
-    const [status, setStatus] = useState('');
-    const [id_producto, setId_producto] = useState('');
+    const [status, setStatus] = useState(null);
+    const [id_categoria, setId_categoria] = useState('');
     const toast = useRef(null);
 
     const items = [
@@ -67,7 +68,7 @@ const Productos = () => {
       setExistencia('');
       setPrecio('');
       setStatus('');
-      setId_producto('');
+      setId_categoria('');
       setShowModal(true);
     };
 
@@ -80,7 +81,7 @@ const Productos = () => {
       producto.existencia = existencia;
       producto.precio = precio;
       producto.status = status;
-      producto.id_producto = id_producto;
+      producto.id_categoria = id_categoria;
 
       let productoService = new ProductoService();
       productoService.save(producto).then(res => {
@@ -89,7 +90,7 @@ const Productos = () => {
         setExistencia('');
         setPrecio('');
         setStatus('');
-        setId_producto('');
+        setId_categoria('');
         setShowModal(false);
         toast.current.show({severity:'success', summary: 'Atencion!', detail:'Producto registrado correctamente', life: 3000});
       });
@@ -101,7 +102,7 @@ const Productos = () => {
       setExistencia(selectedProducto.existencia);
       setPrecio(selectedProducto.precio);
       setStatus(selectedProducto.status);
-      setId_producto(selectedProducto.id_producto);
+      setId_categoria(selectedProducto.id_categoria);
       setShowModal(true);
     };
 
@@ -112,18 +113,27 @@ const Productos = () => {
       });
     };
 
+    const selectStatus = [
+      { opcionstatus: "Disponible", value: 1 },
+      { opcionstatus: "Agotado", value: 0 }
+    ];
+
+    const cambioStatus = (e) => {
+        setStatus(e.value)
+    };
+
     return(
         <div style={{width:'80%', margin: '0 auto', marginTop: '20px'}}>
         <Toast ref={toast} />
         <Panel header="Productos">
           <Menubar model={items} style={{marginBottom: '20px'}} />
           <DataTable value={producto} selectionMode="single" selection={selectedProducto} onSelectionChange={e => setSelectedProducto(e.value)} dataKey="id" className="p-datatable-gridlines" >
-              <Column field="id" header="ID"></Column>
-              <Column field="nombre" header="Nombre"></Column>
-              <Column field="existencia" header="Existencia"></Column>
-              <Column field="precio" header="Precio"></Column>
-              <Column field="status" header="Status"></Column>
-              <Column field="id_producto" header="Id_producto"></Column>
+              <Column field="id" align="center" header="ID"></Column>
+              <Column field="nombre" align="center" header="Nombre"></Column>
+              <Column field="existencia" align="center" header="Existencia"></Column>
+              <Column field="precio" align="center" header="Precio"></Column>
+              <Column field="status" align="center" header="Status"></Column>
+              <Column field="id_categoria" align="center" header="Id_categoria"></Column>
           </DataTable>
         </Panel>
 
@@ -136,19 +146,19 @@ const Productos = () => {
             </div>
             <div className="p-field">
               <label htmlFor="existencia">Existencia</label>
-              <InputText name="existencia" value={existencia} onChange={(e) => setExistencia(e.target.value)} />
+              <InputNumber inputId="existencia" value={existencia} onValueChange={(e) => setExistencia(e.value)} />
             </div>
             <div className="p-field">
               <label htmlFor="precio">Precio</label>
-              <InputText name="precio" value={precio} onChange={(e) => setPrecio(e.target.value)} />
+              <InputNumber inputId="precio" value={precio} onValueChange={(e) => setPrecio(e.value)} />
             </div>
             <div className="p-field">
-              <label htmlFor="status">Status</label>
-              <InputText name="status" value={status} onChange={(e) => setStatus(e.target.value)} />
-            </div>
+                <label htmlFor="status">Status</label>
+                <Dropdown name="status" value={status} options={selectStatus} onChange={cambioStatus} optionLabel="opcionstatus" optionValue="value" placeholder="Seleccionar status" />
+              </div>
             <div className="p-field">
-              <label htmlFor="id_producto">Id_producto</label>
-              <InputText name="id_producto" value={id_producto} onChange={(e) => setId_producto(e.target.value)} />
+              <label htmlFor="id_categoria">Id_categoria</label>
+              <InputNumber inputId="id_categoria" value={id_categoria} onValueChange={(e) => setId_categoria(e.value)} />
             </div>
           </form>
         </div>

@@ -14,7 +14,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { confirmDialog } from 'primereact/confirmdialog';
+import { Dropdown } from 'primereact/dropdown';
 
 const Categorias = () => {
 
@@ -23,7 +23,7 @@ const Categorias = () => {
     const [showModal, setShowModal] = useState(false);
     const [id, setId] = useState('');
     const [nombre, setNombre] = useState('');
-    const [status, setStatus] = useState('');
+    const [status, setStatus] = useState(null);
     const toast = useRef(null);
 
     const items = [
@@ -90,15 +90,6 @@ const Categorias = () => {
       setShowModal(true);
     };
 
-    const showConfirmDelete = () => {
-      confirmDialog({
-        message: 'Are you sure you want to proceed?',
-        header: 'Confirmation',
-        icon: 'pi pi-exclamation-triangle',
-        accept: () => deleteCategoria()
-    });
-  }
-
     const deleteCategoria = () => {
       let categoriaService = new CategoriaService();
       categoriaService.delete(selectedCategoria.id).then(res => {
@@ -106,32 +97,42 @@ const Categorias = () => {
       });
     };
 
+    const selectStatus = [
+      { opcionstatus: "Disponible", value: 1 },
+      { opcionstatus: "Agotado", value: 0 }
+    ];
+
+    const cambioStatus = (e) => {
+        setStatus(e.value)
+    };
+
     return(
         <div style={{width:'80%', margin: '0 auto', marginTop: '20px'}}>
-        <Toast ref={toast} />
-        <Panel header="Categorias">
-        <Menubar model={items} style={{marginBottom: '20px'}} />
-          <DataTable value={categorias} selectionMode="single" selection={selectedCategoria} onSelectionChange={e => setSelectedCategoria(e.value)} dataKey="id" className="p-datatable-gridlines">
-              <Column field="id" header="ID"></Column>
-              <Column field="nombre" header="Nombre"></Column>
-              <Column field="status" header="Status"></Column>
-          </DataTable>
-        </Panel>
+
+          <Toast ref={toast} />
+          <Panel header="Categorias">
+            <Menubar model={items} style={{marginBottom: '20px'}} />
+              <DataTable value={categorias} selectionMode="single" selection={selectedCategoria} onSelectionChange={e => setSelectedCategoria(e.value)} dataKey="id" className="p-datatable-gridlines">
+                  <Column field="id" align="center" header="ID"></Column>
+                  <Column field="nombre" align="center" header="Nombre"></Column>
+                  <Column field="status" align="center" header="Status"></Column>
+              </DataTable>
+          </Panel>
         
-        <Dialog header="Categoria" visible={showModal} style={{ width: '50vw' }} footer={renderFooter()} onHide={() => setShowModal(false)}>
-        <div className="p-fluid">
-          <form id="categoria-form">
-            <div className="p-field">
-              <label htmlFor="nombre">Nombre</label>
-              <InputText name="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+          <Dialog header="Categoria" visible={showModal} style={{ width: '50vw' }} footer={renderFooter()} onHide={() => setShowModal(false)}>
+            <div className="p-fluid">
+              <form id="categoria-form">
+                <div className="p-field">
+                  <label htmlFor="nombre">Nombre</label>
+                  <InputText name="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+                </div>
+                <div className="p-field">
+                  <label htmlFor="status">Status</label>
+                  <Dropdown name="status" value={status} options={selectStatus} onChange={cambioStatus} optionLabel="opcionstatus" optionValue="value" placeholder="Seleccionar status" />
+                </div>
+              </form>
             </div>
-            <div className="p-field">
-              <label htmlFor="status">Status</label>
-              <InputText name="status" value={status} onChange={(e) => setStatus(e.target.value)} />
-            </div>
-          </form>
-        </div>
-        </Dialog>
+          </Dialog>
       </div>
     )
 }
