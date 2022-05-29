@@ -13,5 +13,8 @@ export class ProductoService {
 
     delete(id) {
         return axios.post(this.baseUrl + "delete/"+id, null).then(res => res.data);
-    }
+    } 
+    
 }
+
+

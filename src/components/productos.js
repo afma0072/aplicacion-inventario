@@ -17,6 +17,11 @@ import { Toast } from 'primereact/toast';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
 
+
+import { CategoriaService } from "../service/CategoriaService";
+import axios from 'axios';
+
+
 const Productos = () => {
 
     const [producto, setProducto] = useState([]);
@@ -29,6 +34,8 @@ const Productos = () => {
     const [status, setStatus] = useState(null);
     const [id_categoria, setId_categoria] = useState('');
     const toast = useRef(null);
+
+    const [categoria, setCategoria] = useState([]);
 
     const items = [
       {
@@ -52,6 +59,11 @@ const Productos = () => {
         let productoService = new ProductoService();
         productoService.getAll().then(res => setProducto(res));
     });
+
+    useEffect(() => {
+      let categoriaService = new CategoriaService();
+      categoriaService.getAll().then(res => setCategoria(res));
+  });
 
     const renderFooter = () => {
       return (
@@ -121,8 +133,10 @@ const Productos = () => {
     const cambioStatus = (e) => {
         setStatus(e.value)
     };
+  
 
     return(
+      
         <div style={{width:'80%', margin: '0 auto', marginTop: '20px'}}>
         <Toast ref={toast} />
         <Panel header="Productos">
@@ -133,7 +147,7 @@ const Productos = () => {
               <Column field="existencia" align="center" header="Existencia"></Column>
               <Column field="precio" align="center" header="Precio"></Column>
               <Column field="status" align="center" header="Status"></Column>
-              <Column field="id_categoria" align="center" header="Id_categoria"></Column>
+              <Column field="id_categoria" align="center" header="Categoria"></Column>
           </DataTable>
         </Panel>
 
@@ -155,13 +169,21 @@ const Productos = () => {
             <div className="p-field">
                 <label htmlFor="status">Status</label>
                 <Dropdown name="status" value={status} options={selectStatus} onChange={cambioStatus} optionLabel="opcionstatus" optionValue="value" placeholder="Seleccionar status" />
-              </div>
+            </div>
             <div className="p-field">
-              <label htmlFor="id_categoria">Id_categoria</label>
-              <InputNumber inputId="id_categoria" value={id_categoria} onValueChange={(e) => setId_categoria(e.value)} />
+              <label htmlFor="id_categoria">Categoria</label>
+              <select id="id_categoria" name="id_categoria" className="form-control">
+                {categoria.map((elemento, index) => {
+                  return (
+                    <option key={index} value={elemento.id} >{elemento.nombre} {elemento.id}</option>
+                  );})}
+              </select>
+              
             </div>
           </form>
         </div>
+
+        
         </Dialog>
       </div>
     )
