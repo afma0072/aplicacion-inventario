@@ -15,6 +15,8 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { Dropdown } from 'primereact/dropdown';
+import { InputNumber } from 'primereact/inputnumber';
+import { ProductoService } from "../service/ProductoService";
 
 const Home = () => {
 
@@ -22,11 +24,16 @@ const Home = () => {
     const [selectedTransaccion, setSelectedTransaccion] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [id, setId] = useState('');
+    const [tipo, setTipo] = useState(null);
+    const [id_producto, setId_producto] = useState(null);
+    const [cantidad, setCantidad] = useState(null);
     const [nro_transaccion, setNro_transaccion] = useState(null);
     const [fecha, setFecha] = useState(null);
     const [descripcion, setDescripcion] = useState(null);
     const [status, setStatus] = useState(null);
     const toast = useRef(null);
+
+    const [producto, setProducto] = useState([]);
 
     const items = [
       {
@@ -51,6 +58,11 @@ const Home = () => {
         transaccionService.getAll().then(res => setTransaccion(res));
     });
 
+    useEffect(() => {
+        let productoService = new ProductoService();
+        productoService.getAll().then(res => setProducto(res));
+    });
+
     const renderFooter = () => {
       return (
         <div>
@@ -62,6 +74,9 @@ const Home = () => {
 
     const showSaveModal = () => {
         setId('');
+        setTipo('');
+        setId_producto('');
+        setCantidad('');
         setNro_transaccion('');
         setFecha('');
         setDescripcion('');
@@ -74,14 +89,20 @@ const Home = () => {
       if (id !== '') {
         transaccion.id = id;
       }
-      transaccion.nro_transaccion = nro_transaccion;
+      transaccion.tipo = tipo;
+      transaccion.id_producto = parseInt(id_producto);
+      transaccion.cantidad = cantidad;
+      transaccion.nro_transaccion = parseInt(nro_transaccion);
       transaccion.fecha = fecha;
       transaccion.descripcion = descripcion;
-      transaccion.status = status;
+      transaccion.status = status;     
 
       let transaccionService = new TransaccionService();
       transaccionService.save(transaccion).then(res => {
         setId('');
+        setTipo('');
+        setId_producto('');
+        setCantidad('');
         setNro_transaccion('');
         setFecha('');
         setDescripcion('');
@@ -93,6 +114,9 @@ const Home = () => {
 
     const edit = () => {
       setId(selectedTransaccion.id);
+      setTipo(selectedTransaccion.tipo);
+      setId_producto(selectedTransaccion.id_producto);
+      setCantidad(selectedTransaccion.cantidad);
       setNro_transaccion(selectedTransaccion.nro_transaccion);
       setFecha(selectedTransaccion.fecha);
       setDescripcion(selectedTransaccion.descripcion);
@@ -107,6 +131,25 @@ const Home = () => {
       });
     };
 
+    const selectTipo = [
+        { opciontipo: "Compra", value: "Compra" },
+        { opciontipo: "Venta", value: "Venta" }
+      ];
+  
+      const cambioTipo = (e) => {
+          setTipo(e.value)
+      };
+
+      let optionsProducto = producto.map(elemento => {    
+        return  { value:  `${elemento.id}`, label: `${elemento.nombre}` };
+      });
+
+  
+      const cambioProducto = (e) => {
+        setId_producto(e.value)
+    };
+  
+
     const selectStatus = [
       { opcionstatus: "Disponible", value: 1 },
       { opcionstatus: "Agotado", value: 0 }
@@ -116,6 +159,7 @@ const Home = () => {
         setStatus(e.value)
     };
 
+
     return(
         <div style={{width:'80%', margin: '0 auto', marginTop: '20px'}}>
 
@@ -124,6 +168,9 @@ const Home = () => {
             <Menubar model={items} style={{marginBottom: '20px'}} />
               <DataTable value={transaccion} selectionMode="single" selection={selectedTransaccion} onSelectionChange={e => setSelectedTransaccion(e.value)} dataKey="id" className="p-datatable-gridlines">
                   <Column field="id" align="center" header="ID"></Column>
+                  <Column field="tipo" align="center" header="Tipo"></Column>
+                  <Column field="id_producto" align="center" header="Producto"></Column>
+                  <Column field="cantidad" align="center" header="Cantidad"></Column>
                   <Column field="nro_transaccion" align="center" header="Nro_transaccion"></Column>
                   <Column field="fecha" align="center" header="Fecha"></Column>
                   <Column field="descripcion" align="center" header="Descripcion"></Column>
@@ -131,29 +178,33 @@ const Home = () => {
               </DataTable>
           </Panel>
         
-          <Dialog header="Categoria" visible={showModal} style={{ width: '50vw' }} footer={renderFooter()} onHide={() => setShowModal(false)}>
+          <Dialog header="Transaccion" visible={showModal} style={{ width: '50vw' }} footer={renderFooter()} onHide={() => setShowModal(false)}>
             <div className="p-fluid">
               <form id="categoria-form">
                 <div className="p-field">
-                  <label htmlFor="nro_transaccion">Nro_transaccion</label>
-                  <InputText name="nro_transaccion" value={nro_transaccion} onChange={(e) => setNro_transaccion(e.target.value)} />
+                    <label htmlFor="tipo">Tipo de transaccion</label>
+                    <Dropdown name="tipo" id="select" value={tipo} options={selectTipo} onChange={cambioTipo} optionLabel="opciontipo" optionValue="value" placeholder="Tipo de transaccion"/>
                 </div>
                 <div className="p-field">
-                  <label htmlFor="fecha">Fecha</label>
-                  <InputText name="fecha" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+                    <label htmlFor="id_producto">Producto</label>
+                    <Dropdown name="id_producto" value={id_producto} options={optionsProducto} onChange={cambioProducto} optionLabel="label" optionValue="value" placeholder="Producto"/>
                 </div>
                 <div className="p-field">
-                  <label htmlFor="descripcion">Descripcion</label>
-                  <InputText name="descripcion" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+                    <label htmlFor="cantidad">Cantidad</label>
+                    <InputNumber inputId="cantidad" value={cantidad} onValueChange={(e) => setCantidad(e.value)}/>
                 </div>
                 <div className="p-field">
-                  <label htmlFor="status">Status</label>
-                  <Dropdown name="status" value={status} options={selectStatus} onChange={cambioStatus} optionLabel="opcionstatus" optionValue="value" placeholder="Seleccionar status" />
+                    <label htmlFor="fecha">Fecha</label>
+                    <InputText name="fecha" value={fecha} onChange={(e) => setFecha(e.target.value)}/>
                 </div>
-
-                {status}<br></br>
-                {descripcion}<br></br>
-                {fecha}
+                <div className="p-field">
+                    <label htmlFor="descripcion">Descripcion</label>
+                    <InputText name="descripcion" value={descripcion} onChange={(e) => setDescripcion(e.target.value)}/>
+                </div>
+                <div className="p-field">
+                    <label htmlFor="status">Status</label>
+                    <Dropdown name="status" value={status} options={selectStatus} onChange={cambioStatus} optionLabel="opcionstatus" optionValue="value" placeholder="Seleccionar status"/>
+                </div>
               </form>
             </div>
           </Dialog>

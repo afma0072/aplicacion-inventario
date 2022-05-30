@@ -165,7 +165,7 @@ const Productos = () => {
             </div>
             <div className="p-field">
               <label htmlFor="id_categoria">Categoria</label>
-              <Dropdown name="status" value={id_categoria} options={optionsCategoria} onChange={cambioCategoria} optionLabel="label" optionValue="value" placeholder="Seleccionar categoria" />
+              <Dropdown name="id_categoria" value={id_categoria} options={optionsCategoria} onChange={cambioCategoria} optionLabel="label" optionValue="value" placeholder="Seleccionar categoria" />
             </div>
           </form>
         </div>
