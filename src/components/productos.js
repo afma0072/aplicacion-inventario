@@ -19,7 +19,6 @@ import { InputNumber } from 'primereact/inputnumber';
 
 
 import { CategoriaService } from "../service/CategoriaService";
-import axios from 'axios';
 
 
 const Productos = () => {
@@ -32,7 +31,7 @@ const Productos = () => {
     const [existencia, setExistencia] = useState('');
     const [precio, setPrecio] = useState('');
     const [status, setStatus] = useState(null);
-    const [id_categoria, setId_categoria] = useState('');
+    const [id_categoria, setId_categoria] = useState(null);
     const toast = useRef(null);
 
     const [categoria, setCategoria] = useState([]);
@@ -90,10 +89,10 @@ const Productos = () => {
         producto.id = id;
       }
       producto.nombre = nombre;
-      producto.existencia = existencia;
+      producto.existencia = 0;
       producto.precio = precio;
-      producto.status = status;
-      producto.id_categoria = id_categoria;
+      producto.status = 0;
+      producto.id_categoria = parseInt(id_categoria);
 
       let productoService = new ProductoService();
       productoService.save(producto).then(res => {
@@ -111,9 +110,7 @@ const Productos = () => {
     const edit = () => {
       setId(selectedProducto.id);
       setNombre(selectedProducto.nombre);
-      setExistencia(selectedProducto.existencia);
       setPrecio(selectedProducto.precio);
-      setStatus(selectedProducto.status);
       setId_categoria(selectedProducto.id_categoria);
       setShowModal(true);
     };
@@ -125,14 +122,18 @@ const Productos = () => {
       });
     };
 
-    const selectStatus = [
-      { opcionstatus: "Disponible", value: 1 },
-      { opcionstatus: "Agotado", value: 0 }
-    ];
 
-    const cambioStatus = (e) => {
-        setStatus(e.value)
-    };
+    
+    let optionsCategoria = categoria.map(elemento => {    
+      return  { value:  `${elemento.id}`, label: `${elemento.nombre}` };
+    });
+
+
+
+    const cambioCategoria = (e) => {
+      setId_categoria(e.value)
+  };
+
   
 
     return(
@@ -159,26 +160,12 @@ const Productos = () => {
               <InputText name="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} />
             </div>
             <div className="p-field">
-              <label htmlFor="existencia">Existencia</label>
-              <InputNumber inputId="existencia" value={existencia} onValueChange={(e) => setExistencia(e.value)} />
-            </div>
-            <div className="p-field">
               <label htmlFor="precio">Precio</label>
               <InputNumber inputId="precio" value={precio} onValueChange={(e) => setPrecio(e.value)} />
             </div>
             <div className="p-field">
-                <label htmlFor="status">Status</label>
-                <Dropdown name="status" value={status} options={selectStatus} onChange={cambioStatus} optionLabel="opcionstatus" optionValue="value" placeholder="Seleccionar status" />
-            </div>
-            <div className="p-field">
               <label htmlFor="id_categoria">Categoria</label>
-              <select id="id_categoria" name="id_categoria" className="form-control">
-                {categoria.map((elemento, index) => {
-                  return (
-                    <option key={index} value={elemento.id} >{elemento.nombre} {elemento.id}</option>
-                  );})}
-              </select>
-              
+              <Dropdown name="status" value={id_categoria} options={optionsCategoria} onChange={cambioCategoria} optionLabel="label" optionValue="value" placeholder="Seleccionar categoria" />
             </div>
           </form>
         </div>
